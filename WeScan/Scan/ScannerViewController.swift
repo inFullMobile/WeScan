@@ -26,14 +26,6 @@ final class ScannerViewController: UIViewController {
     
     /// The original bar style that was set by the host app
     private var originalBarStyle: UIBarStyle?
-
-    private var finalQuad: Quadrilateral?
-
-    private lazy var scannedImageImageView: UIImageView = {
-        let view = UIImageView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
     
     private lazy var shutterButton: ShutterButton = {
         let button = ShutterButton()
@@ -134,12 +126,11 @@ final class ScannerViewController: UIViewController {
         view.addSubview(cancelButton)
         view.addSubview(shutterButton)
         view.addSubview(activityIndicator)
-        view.addSubview(scannedImageImageView)
     }
     
     private func setupNavigationBar() {
-//        navigationItem.setLeftBarButton(flashButton, animated: false)
-//        navigationItem.setRightBarButton(autoScanButton, animated: false)
+        navigationItem.setLeftBarButton(flashButton, animated: false)
+        navigationItem.setRightBarButton(autoScanButton, animated: false)
         
         if UIImagePickerController.isFlashAvailable(for: .rear) == false {
             let flashOffImage = UIImage(named: "flashUnavailable", in: Bundle(for: ScannerViewController.self), compatibleWith: nil)
@@ -153,8 +144,7 @@ final class ScannerViewController: UIViewController {
         var cancelButtonConstraints = [NSLayoutConstraint]()
         var shutterButtonConstraints = [NSLayoutConstraint]()
         var activityIndicatorConstraints = [NSLayoutConstraint]()
-        var scannedImageImageViewConstraints = [NSLayoutConstraint]()
-
+        
         quadViewConstraints = [
             quadView.topAnchor.constraint(equalTo: view.topAnchor),
             view.bottomAnchor.constraint(equalTo: quadView.bottomAnchor),
@@ -171,13 +161,6 @@ final class ScannerViewController: UIViewController {
         activityIndicatorConstraints = [
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ]
-
-        scannedImageImageViewConstraints = [
-            scannedImageImageView.topAnchor.constraint(equalTo: view.topAnchor),
-            scannedImageImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scannedImageImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scannedImageImageView.heightAnchor.constraint(equalToConstant: 300)
         ]
         
         if #available(iOS 11.0, *) {
@@ -198,7 +181,7 @@ final class ScannerViewController: UIViewController {
             shutterButtonConstraints.append(shutterButtonBottomConstraint)
         }
         
-        NSLayoutConstraint.activate(quadViewConstraints + cancelButtonConstraints + shutterButtonConstraints + activityIndicatorConstraints + scannedImageImageViewConstraints)
+        NSLayoutConstraint.activate(quadViewConstraints + cancelButtonConstraints + shutterButtonConstraints + activityIndicatorConstraints)
     }
     
     // MARK: - Tap to Focus
@@ -306,44 +289,13 @@ extension ScannerViewController: RectangleDetectionDelegateProtocol {
     
     func captureSessionManager(_ captureSessionManager: CaptureSessionManager, didCapturePicture picture: UIImage, withQuad quad: Quadrilateral?) {
         activityIndicator.stopAnimating()
-
+        
         let editVC = EditScanViewController(image: picture, quad: quad)
         navigationController?.pushViewController(editVC, animated: false)
+        
+        shutterButton.isUserInteractionEnabled = true
     }
-
-    func process(picture: UIImage, in quad: Quadrilateral?) {
-        let image = picture.applyingPortraitOrientation()
-        guard let quad = quad,
-            let ciImage = CIImage(image: image) else { return }
-        let cgOrientation = CGImagePropertyOrientation(image.imageOrientation)
-        let orientedImage = ciImage.oriented(forExifOrientation: Int32(cgOrientation.rawValue))
-        let scaledQuad = quad.scale(quadView.bounds.size, image.size)
-//        self.quad = scaledQuad
-
-        // Cropped Image
-        var cartesianScaledQuad = scaledQuad.toCartesian(withHeight: image.size.height)
-        cartesianScaledQuad.reorganize()
-
-        let filteredImage = orientedImage.applyingFilter("CIPerspectiveCorrection", parameters: [
-            "inputTopLeft": CIVector(cgPoint: cartesianScaledQuad.bottomLeft),
-            "inputTopRight": CIVector(cgPoint: cartesianScaledQuad.bottomRight),
-            "inputBottomLeft": CIVector(cgPoint: cartesianScaledQuad.topLeft),
-            "inputBottomRight": CIVector(cgPoint: cartesianScaledQuad.topRight)
-            ])
-
-        let croppedImage = UIImage.from(ciImage: filteredImage)
-        // Enhanced Image
-        let enhancedImage = filteredImage.applyingAdaptiveThreshold()?.withFixedOrientation()
-        let enhancedScan = enhancedImage.flatMap { ImageScannerScan(image: $0) }
-
-        let results = ImageScannerResults(detectedRectangle: scaledQuad, originalScan: ImageScannerScan(image: image), croppedScan: ImageScannerScan(image: croppedImage), enhancedScan: enhancedScan)
-
-        scannedImageImageView.image = croppedImage
-
-//        let reviewViewController = ReviewViewController(results: results)
-//        navigationController?.pushViewController(reviewViewController, animated: true)
-    }
-
+    
     func captureSessionManager(_ captureSessionManager: CaptureSessionManager, didDetectQuad quad: Quadrilateral?, _ imageSize: CGSize) {
         guard let quad = quad else {
             // If no quad has been detected, we remove the currently displayed on on the quadView.
@@ -367,7 +319,6 @@ extension ScannerViewController: RectangleDetectionDelegateProtocol {
         let transformedQuad = quad.applyTransforms(transforms)
         
         quadView.drawQuadrilateral(quad: transformedQuad, animated: true)
-        finalQuad = transformedQuad
     }
     
 }
