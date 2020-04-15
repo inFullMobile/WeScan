@@ -124,7 +124,9 @@ final class HomeViewController: UIViewController {
             scannerViewController.navigationBar.tintColor = .black
         }
         
-        scannerViewController.navigationBar.barStyle = .blackTranslucent
+        scannerViewController.setupColors()
+        scannerViewController.navigationBar.backgroundColor = .black
+        scannerViewController.navigationBar.isTranslucent = false
         
         present(scannerViewController, animated: true)
     }
@@ -164,5 +166,21 @@ extension HomeViewController: UIImagePickerControllerDelegate, UINavigationContr
         guard let image = info[.originalImage] as? UIImage else { return }
         let scannerViewController = ImageScannerController(image: image, delegate: self)
         present(scannerViewController, animated: true)
+    }
+}
+
+extension UINavigationController {
+    func setupColors() {
+        self.navigationBar.backgroundColor = .clear
+        self.navigationBar.shadowImage = UIImage()
+        self.navigationBar.isTranslucent = true
+        self.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationBar.tintColor = UIColor(red: 92.0/255.0, green: 109.0/255.0, blue: 255.0/255.0, alpha: 1.0)
+
+        self.navigationBar.barStyle = .black
+        self.navigationBar.titleTextAttributes = [
+            NSAttributedString.Key.foregroundColor: UIColor.white,
+            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20, weight: .heavy)
+        ]
     }
 }
