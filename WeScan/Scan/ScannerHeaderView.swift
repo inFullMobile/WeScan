@@ -15,7 +15,7 @@ class ScannerHeaderView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Scan Contact"
         label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 40, weight: .regular)
+        label.font = UIFont.systemFont(ofSize: 40, weight: .semibold)
         label.minimumScaleFactor = 0.5
         label.adjustsFontSizeToFitWidth = true
         label.numberOfLines = 1
@@ -27,7 +27,7 @@ class ScannerHeaderView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Business Card"
         label.textColor = UIColor(red: 92.0/255.0, green: 109.0/255.0, blue: 255.0/255.0, alpha: 1.0)
-        label.font = UIFont.systemFont(ofSize: 40, weight: .regular)
+        label.font = UIFont.systemFont(ofSize: 40, weight: .semibold)
         label.minimumScaleFactor = 0.5
         label.adjustsFontSizeToFitWidth = true
         label.numberOfLines = 1
@@ -39,7 +39,7 @@ class ScannerHeaderView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Line it up with the frame"
         label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.numberOfLines = 1
         return label
     }()
@@ -65,11 +65,11 @@ class ScannerHeaderView: UIView {
             
             subtitleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             subtitleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: -10),
+            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: -8),
             
             lineupLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             lineupLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            lineupLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 8),
+            lineupLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 16),
             lineupLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
     }

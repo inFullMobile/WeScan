@@ -63,6 +63,8 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
     /// Contains preview frame. It is used to check if scanned rectangle is in a valid range.
     var previewConst: PreviewConst
     
+    var ignoreResults: Bool = false
+    
     // MARK: Life Cycle
     
     init?(videoPreviewLayer: AVCaptureVideoPreviewLayer, previewConst: PreviewConst) {
@@ -182,12 +184,14 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
     }
     
     private func processRectangle(rectangle: Quadrilateral?, imageSize: CGSize) {
+        guard !ignoreResults else {
+            return
+        }
         
         let maxValidRectangle = getMaximumValidRectangleQuadrilateral(imageSize: imageSize, previewSize: previewConst.previewFrame.size)
-        // minValidRectangle is not used for now, but can be used depending on UX
         let minValidRectangle = getMinimumValidRectangleQuadrilateral(imageSize: imageSize, previewSize: previewConst.previewFrame.size)
         
-        if let rectangle = rectangle, maxValidRectangle.fullyContains(rectangle)/*, rectangle.fullyContains(minValidRectangle)*/ {
+        if let rectangle = rectangle, maxValidRectangle.fullyContains(rectangle), rectangle.fullyContains(minValidRectangle) {
             
             self.noRectangleCount = 0
             self.rectangleFunnel.add(rectangle, currentlyDisplayedRectangle: self.displayedRectangleResult?.rectangle) { [weak self] (result, rectangle) in

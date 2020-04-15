@@ -124,6 +124,8 @@ final class HomeViewController: UIViewController {
             scannerViewController.navigationBar.tintColor = .black
         }
         
+        scannerViewController.navigationBar.barStyle = .blackTranslucent
+        
         present(scannerViewController, animated: true)
     }
     

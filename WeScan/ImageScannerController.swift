@@ -45,6 +45,12 @@ public final class ImageScannerController: UINavigationController {
     /// The object that acts as the delegate of the `ImageScannerController`.
     public weak var imageScannerDelegate: ImageScannerControllerDelegate?
     
+    public var ignoreResults: Bool = false {
+        didSet {
+            (viewControllers.first as? ScannerViewController)?.ignoreResults = ignoreResults
+        }
+    }
+    
     // MARK: - Life Cycle
     
     /// A black UIView, used to quickly display a black screen when the shutter button is presseed.
@@ -56,6 +62,13 @@ public final class ImageScannerController: UINavigationController {
         return view
     }()
 
+    private lazy var activityIndicator: ActivityIndicatorView = {
+        let activityIndicator = ActivityIndicatorView()
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.backgroundColor = .black
+        return activityIndicator
+    }()
+    
     override public var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .portrait
     }
@@ -129,6 +142,24 @@ public final class ImageScannerController: UINavigationController {
         DispatchQueue.main.asyncAfter(deadline: flashDuration) {
             self.blackFlashView.isHidden = true
         }
+    }
+    
+    public func showActivityIndicator() {
+        view.addSubview(activityIndicator)
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            activityIndicator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            activityIndicator.topAnchor.constraint(equalTo: view.topAnchor),
+            activityIndicator.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        activityIndicator.startAnimating()
+    }
+    
+    public func hideActivityIndicator() {
+        activityIndicator.stopAnimating()
+        activityIndicator.removeFromSuperview()
     }
 }
 

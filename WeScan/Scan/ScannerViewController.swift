@@ -59,9 +59,16 @@ final class ScannerViewController: UIViewController {
     
     private var quadViewTopConstraint: NSLayoutConstraint?
     private var quadViewBottomConstraint: NSLayoutConstraint?
+    private var headerContainerViewTopConstraint: NSLayoutConstraint?
     
     /// Contains preview frame. It is used to set preview scanner size.
     private var previewConst = PreviewConst()
+    
+    public var ignoreResults: Bool = false {
+        didSet {
+            captureSessionManager?.ignoreResults = ignoreResults
+        }
+    }
     
     private lazy var shutterButton: ShutterButton = {
         let button = ShutterButton()
@@ -75,6 +82,13 @@ final class ScannerViewController: UIViewController {
         button.setTitle(NSLocalizedString("wescan.scanning.cancel", tableName: nil, bundle: Bundle(for: ScannerViewController.self), value: "Cancel", comment: "The cancel button"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(cancelImageScannerController), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var cancelBarButtonItem: UIBarButtonItem = {
+        let image = UIImage(named: "close", in: Bundle(for: ScannerViewController.self), compatibleWith: nil)
+        let button = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(cancelImageScannerController))
+        button.tintColor = .white
         return button
     }()
     
@@ -94,9 +108,8 @@ final class ScannerViewController: UIViewController {
         return button
     }()
     
-    private lazy var activityIndicator: UIActivityIndicatorView = {
-        let activityIndicator = UIActivityIndicatorView(style: .gray)
-        activityIndicator.hidesWhenStopped = true
+    private lazy var activityIndicator: ActivityIndicatorView = {
+        let activityIndicator = ActivityIndicatorView()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         return activityIndicator
     }()
@@ -125,9 +138,10 @@ final class ScannerViewController: UIViewController {
         setupConstraints()
         
         captureSessionManager = CaptureSessionManager(videoPreviewLayer: videoPreviewLayer, previewConst: previewConst)
+        captureSessionManager?.ignoreResults = ignoreResults
         captureSessionManager?.delegate = self
         
-        originalBarStyle = navigationController?.navigationBar.barStyle
+        //originalBarStyle = navigationController?.navigationBar.barStyle
         
         NotificationCenter.default.addObserver(self, selector: #selector(subjectAreaDidChange), name: Notification.Name.AVCaptureDeviceSubjectAreaDidChange, object: nil)
     }
@@ -141,7 +155,7 @@ final class ScannerViewController: UIViewController {
         captureSessionManager?.start()
         UIApplication.shared.isIdleTimerDisabled = true
         
-        navigationController?.navigationBar.barStyle = .blackTranslucent
+        //navigationController?.navigationBar.barStyle = .blackTranslucent
     }
     
     override func viewDidLayoutSubviews() {
@@ -154,8 +168,8 @@ final class ScannerViewController: UIViewController {
         super.viewWillDisappear(animated)
         UIApplication.shared.isIdleTimerDisabled = false
         
-        navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.barStyle = originalBarStyle ?? .default
+        //navigationController?.navigationBar.isTranslucent = false
+        //navigationController?.navigationBar.barStyle = originalBarStyle ?? .default
         captureSessionManager?.stop()
         guard let device = AVCaptureDevice.default(for: AVMediaType.video) else { return }
         if device.torchMode == .on {
@@ -166,33 +180,35 @@ final class ScannerViewController: UIViewController {
     // MARK: - Setups
     
     private func setupViews() {
-        view.backgroundColor = .darkGray
+        view.backgroundColor = .black
         view.layer.addSublayer(videoPreviewLayer)
         quadView.translatesAutoresizingMaskIntoConstraints = false
         quadView.editable = false
         headerContainerView.addSubview(headerView)
         view.addSubview(quadView)
         view.addSubview(headerContainerView)
-        view.addSubview(cancelButton)
+//        view.addSubview(cancelButton)
         view.addSubview(shutterButton)
         view.addSubview(activityIndicator)
     }
     
     private func setupNavigationBar() {
-        navigationItem.setLeftBarButton(flashButton, animated: false)
-        navigationItem.setRightBarButton(autoScanButton, animated: false)
+        navigationItem.setLeftBarButton(cancelBarButtonItem, animated: false)
         
-        if UIImagePickerController.isFlashAvailable(for: .rear) == false {
-            let flashOffImage = UIImage(named: "flashUnavailable", in: Bundle(for: ScannerViewController.self), compatibleWith: nil)
-            flashButton.image = flashOffImage
-            flashButton.tintColor = UIColor.lightGray
-        }
+//        navigationItem.setLeftBarButton(flashButton, animated: false)
+//        navigationItem.setRightBarButton(autoScanButton, animated: false)
+//
+//        if UIImagePickerController.isFlashAvailable(for: .rear) == false {
+//            let flashOffImage = UIImage(named: "flashUnavailable", in: Bundle(for: ScannerViewController.self), compatibleWith: nil)
+//            flashButton.image = flashOffImage
+//            flashButton.tintColor = UIColor.lightGray
+//        }
     }
     
     private func setupConstraints() {
         var quadViewConstraints = [NSLayoutConstraint]()
         var headerViewConstraints = [NSLayoutConstraint]()
-        var cancelButtonConstraints = [NSLayoutConstraint]()
+        //var cancelButtonConstraints = [NSLayoutConstraint]()
         var shutterButtonConstraints = [NSLayoutConstraint]()
         var activityIndicatorConstraints = [NSLayoutConstraint]()
         
@@ -216,40 +232,45 @@ final class ScannerViewController: UIViewController {
         ]
         
         activityIndicatorConstraints = [
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            activityIndicator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            activityIndicator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            activityIndicator.topAnchor.constraint(equalTo: view.topAnchor),
+            activityIndicator.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ]
         
         if #available(iOS 11.0, *) {
-            cancelButtonConstraints = [
-                cancelButton.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 24.0),
-                view.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: cancelButton.bottomAnchor, constant: (65.0 / 2) - 10.0)
-            ]
+//            cancelButtonConstraints = [
+//                cancelButton.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 24.0),
+//                view.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: cancelButton.bottomAnchor, constant: (65.0 / 2) - 10.0)
+//            ]
             
             let shutterButtonBottomConstraint = view.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: shutterButton.bottomAnchor, constant: 8.0)
             shutterButtonConstraints.append(shutterButtonBottomConstraint)
+            
+            let headerContainerViewTopConstraint = headerContainerView.heightAnchor.constraint(equalToConstant: 170)
+            self.headerContainerViewTopConstraint = headerContainerViewTopConstraint
             
             headerViewConstraints = [
                 headerContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: previewConst.horizontalMargin),
                 headerContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -previewConst.horizontalMargin),
                 headerContainerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: previewConst.horizontalMargin),
-                headerContainerView.bottomAnchor.constraint(equalTo: quadView.topAnchor, constant: -previewConst.horizontalMargin),
+                headerContainerViewTopConstraint,
                 headerView.leadingAnchor.constraint(equalTo: headerContainerView.leadingAnchor),
                 headerView.trailingAnchor.constraint(equalTo: headerContainerView.trailingAnchor),
                 headerView.centerYAnchor.constraint(equalTo: headerContainerView.centerYAnchor)
             ]
             
         } else {
-            cancelButtonConstraints = [
-                cancelButton.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 24.0),
-                view.bottomAnchor.constraint(equalTo: cancelButton.bottomAnchor, constant: (65.0 / 2) - 10.0)
-            ]
+//            cancelButtonConstraints = [
+//                cancelButton.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 24.0),
+//                view.bottomAnchor.constraint(equalTo: cancelButton.bottomAnchor, constant: (65.0 / 2) - 10.0)
+//            ]
             
             let shutterButtonBottomConstraint = view.bottomAnchor.constraint(equalTo: shutterButton.bottomAnchor, constant: 8.0)
             shutterButtonConstraints.append(shutterButtonBottomConstraint)
         }
         
-        NSLayoutConstraint.activate(quadViewConstraints + cancelButtonConstraints + shutterButtonConstraints + activityIndicatorConstraints + headerViewConstraints)
+        NSLayoutConstraint.activate(quadViewConstraints /*+ cancelButtonConstraints*/ + shutterButtonConstraints + activityIndicatorConstraints + headerViewConstraints)
     }
     
     private func updatePreviewWithParent(viewBounds: CGRect) {
@@ -260,6 +281,7 @@ final class ScannerViewController: UIViewController {
         
         quadViewTopConstraint?.constant = previewConst.topMargin
         quadViewBottomConstraint?.constant = -previewConst.bottomMargin
+        headerContainerViewTopConstraint?.constant = previewConst.topMargin - 32
     }
     
     // MARK: - Tap to Focus
