@@ -60,10 +60,14 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
     /// The minimum number of time required by `noRectangleCount` to validate that no rectangles have been found.
     private let noRectangleThreshold = 3
     
+    /// Contains preview frame. It is used to check if scanned rectangle is in a valid range.
+    var previewConst: PreviewConst
+    
     // MARK: Life Cycle
     
-    init?(videoPreviewLayer: AVCaptureVideoPreviewLayer) {
+    init?(videoPreviewLayer: AVCaptureVideoPreviewLayer, previewConst: PreviewConst) {
         self.videoPreviewLayer = videoPreviewLayer
+        self.previewConst = previewConst
         super.init()
         
         guard let device = AVCaptureDevice.default(for: AVMediaType.video) else {
@@ -178,7 +182,12 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
     }
     
     private func processRectangle(rectangle: Quadrilateral?, imageSize: CGSize) {
-        if let rectangle = rectangle {
+        
+        let maxValidRectangle = getMaximumValidRectangleQuadrilateral(imageSize: imageSize, previewSize: previewConst.previewFrame.size)
+        // minValidRectangle is not used for now, but can be used depending on UX
+        let minValidRectangle = getMinimumValidRectangleQuadrilateral(imageSize: imageSize, previewSize: previewConst.previewFrame.size)
+        
+        if let rectangle = rectangle, maxValidRectangle.fullyContains(rectangle)/*, rectangle.fullyContains(minValidRectangle)*/ {
             
             self.noRectangleCount = 0
             self.rectangleFunnel.add(rectangle, currentlyDisplayedRectangle: self.displayedRectangleResult?.rectangle) { [weak self] (result, rectangle) in
@@ -214,6 +223,33 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
             return
             
         }
+    }
+    
+    private func getMaximumValidRectangleQuadrilateral(imageSize: CGSize, previewSize: CGSize) -> Quadrilateral {
+        return getValidRectangleQuadrilateral(imageSize: imageSize, previewSize: previewSize, shiftXPercent: 0, shiftYPercent: 0)
+    }
+    
+    private func getMinimumValidRectangleQuadrilateral(imageSize: CGSize, previewSize: CGSize) -> Quadrilateral {
+        return getValidRectangleQuadrilateral(imageSize: imageSize, previewSize: previewSize, shiftXPercent: 0.2, shiftYPercent: 0.35)
+    }
+    
+    private func getValidRectangleQuadrilateral(imageSize: CGSize, previewSize: CGSize, shiftXPercent: CGFloat, shiftYPercent: CGFloat) -> Quadrilateral {
+        let ratio: CGFloat = previewSize.height / previewSize.width
+        let height: CGFloat = imageSize.height * ratio
+        let margin: CGFloat = (imageSize.width - height) / 2
+        let leftX = margin
+        let rightX = leftX + height
+        let shiftX: CGFloat = shiftXPercent * imageSize.height
+        let shiftY: CGFloat = shiftYPercent * imageSize.height
+        
+        let rectangle = Quadrilateral(
+            topLeft: CGPoint(x: leftX+shiftX, y: imageSize.height-shiftY),
+            topRight: CGPoint(x: rightX-shiftX, y: imageSize.height-shiftY),
+            bottomRight: CGPoint(x: rightX-shiftX, y: 0+shiftY),
+            bottomLeft: CGPoint(x: leftX+shiftX, y: 0+shiftY)
+        )
+        
+        return rectangle
     }
     
     @discardableResult private func displayRectangleResult(rectangleResult: RectangleDetectorResult) -> Quadrilateral {

@@ -9,16 +9,46 @@
 import UIKit
 import AVFoundation
 
+struct PreviewConst {
+    let horizontalMargin: CGFloat = 12.0
+    let navigationBarHeight: CGFloat = 34.0
+    let previewRectRatio: CGFloat = 537.0 / 388.0
+    private(set) var parentViewBounds: CGRect = .zero
+    private(set) var previewFrame: CGRect = .zero
+
+    var topMargin: CGFloat {
+        return previewFrame.origin.y
+    }
+    var bottomMargin: CGFloat {
+        return parentViewBounds.height - previewFrame.height - previewFrame.origin.y
+    }
+    mutating func updateWithParent(viewBounds: CGRect) {
+        parentViewBounds = viewBounds
+        previewFrame = centeredRect(in: viewBounds)
+    }
+    private func centeredRect(in bounds: CGRect) -> CGRect {
+        let width = bounds.width - 2 * horizontalMargin
+        let height = width / previewRectRatio
+        let size = CGSize(width: width, height: height)
+        let verticalMargin = (bounds.height - size.height) / 2.0 - navigationBarHeight
+        return CGRect(x: horizontalMargin, y: verticalMargin, width: size.width, height: size.height)
+    }
+}
+
 /// The `ScannerViewController` offers an interface to give feedback to the user regarding quadrilaterals that are detected. It also gives the user the opportunity to capture an image with a detected rectangle.
 final class ScannerViewController: UIViewController {
     
     private var captureSessionManager: CaptureSessionManager?
-    private let videoPreviewLayer = AVCaptureVideoPreviewLayer()
+    private lazy var videoPreviewLayer: AVCaptureVideoPreviewLayer = {
+        let layer = AVCaptureVideoPreviewLayer()
+        layer.cornerRadius = 8
+        return layer
+    }()
     
     /// The view that shows the focus rectangle (when the user taps to focus, similar to the Camera app)
     private var focusRectangle: FocusRectangleView!
     
-    /// The view that draws the detected rectangles.
+    /// The view that draws the detected rectangles (It's just for preview). It's size is used to calculate position of quadrilaterals.
     private let quadView = QuadrilateralView()
         
     /// Whether flash is enabled
@@ -26,6 +56,12 @@ final class ScannerViewController: UIViewController {
     
     /// The original bar style that was set by the host app
     private var originalBarStyle: UIBarStyle?
+    
+    private var quadViewTopConstraint: NSLayoutConstraint?
+    private var quadViewBottomConstraint: NSLayoutConstraint?
+    
+    /// Contains preview frame. It is used to set preview scanner size.
+    private var previewConst = PreviewConst()
     
     private lazy var shutterButton: ShutterButton = {
         let button = ShutterButton()
@@ -64,7 +100,19 @@ final class ScannerViewController: UIViewController {
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         return activityIndicator
     }()
+    
+    private lazy var headerContainerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
 
+    private lazy var headerView: ScannerHeaderView = {
+        let view = ScannerHeaderView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     // MARK: - Life Cycle
 
     override func viewDidLoad() {
@@ -76,7 +124,7 @@ final class ScannerViewController: UIViewController {
         setupNavigationBar()
         setupConstraints()
         
-        captureSessionManager = CaptureSessionManager(videoPreviewLayer: videoPreviewLayer)
+        captureSessionManager = CaptureSessionManager(videoPreviewLayer: videoPreviewLayer, previewConst: previewConst)
         captureSessionManager?.delegate = self
         
         originalBarStyle = navigationController?.navigationBar.barStyle
@@ -99,7 +147,7 @@ final class ScannerViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        videoPreviewLayer.frame = view.layer.bounds
+        updatePreviewWithParent(viewBounds: view.layer.bounds)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -122,7 +170,9 @@ final class ScannerViewController: UIViewController {
         view.layer.addSublayer(videoPreviewLayer)
         quadView.translatesAutoresizingMaskIntoConstraints = false
         quadView.editable = false
+        headerContainerView.addSubview(headerView)
         view.addSubview(quadView)
+        view.addSubview(headerContainerView)
         view.addSubview(cancelButton)
         view.addSubview(shutterButton)
         view.addSubview(activityIndicator)
@@ -141,16 +191,23 @@ final class ScannerViewController: UIViewController {
     
     private func setupConstraints() {
         var quadViewConstraints = [NSLayoutConstraint]()
+        var headerViewConstraints = [NSLayoutConstraint]()
         var cancelButtonConstraints = [NSLayoutConstraint]()
         var shutterButtonConstraints = [NSLayoutConstraint]()
         var activityIndicatorConstraints = [NSLayoutConstraint]()
         
+        let quadViewTopConstraint = quadView.topAnchor.constraint(equalTo: view.topAnchor, constant: previewConst.topMargin)
+        let quadViewBottomConstraint = quadView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -previewConst.bottomMargin)
+        
         quadViewConstraints = [
-            quadView.topAnchor.constraint(equalTo: view.topAnchor),
-            view.bottomAnchor.constraint(equalTo: quadView.bottomAnchor),
-            view.trailingAnchor.constraint(equalTo: quadView.trailingAnchor),
-            quadView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+            quadViewTopConstraint,
+            quadViewBottomConstraint,
+            view.trailingAnchor.constraint(equalTo: quadView.trailingAnchor, constant: previewConst.horizontalMargin),
+            quadView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: previewConst.horizontalMargin)
         ]
+        
+        self.quadViewTopConstraint = quadViewTopConstraint
+        self.quadViewBottomConstraint = quadViewBottomConstraint
         
         shutterButtonConstraints = [
             shutterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -171,6 +228,17 @@ final class ScannerViewController: UIViewController {
             
             let shutterButtonBottomConstraint = view.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: shutterButton.bottomAnchor, constant: 8.0)
             shutterButtonConstraints.append(shutterButtonBottomConstraint)
+            
+            headerViewConstraints = [
+                headerContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: previewConst.horizontalMargin),
+                headerContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -previewConst.horizontalMargin),
+                headerContainerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: previewConst.horizontalMargin),
+                headerContainerView.bottomAnchor.constraint(equalTo: quadView.topAnchor, constant: -previewConst.horizontalMargin),
+                headerView.leadingAnchor.constraint(equalTo: headerContainerView.leadingAnchor),
+                headerView.trailingAnchor.constraint(equalTo: headerContainerView.trailingAnchor),
+                headerView.centerYAnchor.constraint(equalTo: headerContainerView.centerYAnchor)
+            ]
+            
         } else {
             cancelButtonConstraints = [
                 cancelButton.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 24.0),
@@ -181,7 +249,17 @@ final class ScannerViewController: UIViewController {
             shutterButtonConstraints.append(shutterButtonBottomConstraint)
         }
         
-        NSLayoutConstraint.activate(quadViewConstraints + cancelButtonConstraints + shutterButtonConstraints + activityIndicatorConstraints)
+        NSLayoutConstraint.activate(quadViewConstraints + cancelButtonConstraints + shutterButtonConstraints + activityIndicatorConstraints + headerViewConstraints)
+    }
+    
+    private func updatePreviewWithParent(viewBounds: CGRect) {
+        previewConst.updateWithParent(viewBounds: viewBounds)
+        captureSessionManager?.previewConst = previewConst
+        
+        videoPreviewLayer.frame = previewConst.previewFrame
+        
+        quadViewTopConstraint?.constant = previewConst.topMargin
+        quadViewBottomConstraint?.constant = -previewConst.bottomMargin
     }
     
     // MARK: - Tap to Focus
@@ -210,6 +288,10 @@ final class ScannerViewController: UIViewController {
         let convertedTouchPoint: CGPoint = videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: touchPoint)
         
         CaptureSession.current.removeFocusRectangleIfNeeded(focusRectangle, animated: false)
+        
+        guard previewConst.previewFrame.contains(touchPoint) else {
+            return
+        }
         
         focusRectangle = FocusRectangleView(touchPoint: touchPoint)
         view.addSubview(focusRectangle)

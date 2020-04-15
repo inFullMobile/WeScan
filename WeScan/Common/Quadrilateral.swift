@@ -217,3 +217,14 @@ extension Quadrilateral: Equatable {
         return lhs.topLeft == rhs.topLeft && lhs.topRight == rhs.topRight && lhs.bottomRight == rhs.bottomRight && lhs.bottomLeft == rhs.bottomLeft
     }
 }
+
+extension Quadrilateral {
+    
+    func fullyContains(_ another: Quadrilateral) -> Bool {
+        let topLeft = self.topLeft.x < another.topLeft.x && self.topLeft.y > another.topLeft.y
+        let topRight = self.topRight.x > another.topRight.x && self.topRight.y > another.topRight.y
+        let bottomRight = self.bottomRight.x > another.bottomRight.x && self.bottomRight.y < another.bottomRight.y
+        let bottomLeft = self.bottomLeft.x < another.bottomLeft.x && self.bottomLeft.y < another.bottomLeft.y
+        return topLeft && topRight && bottomRight && bottomLeft
+    }
+}
