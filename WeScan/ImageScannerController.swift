@@ -65,7 +65,7 @@ public final class ImageScannerController: UINavigationController {
     private lazy var activityIndicator: ActivityIndicatorView = {
         let activityIndicator = ActivityIndicatorView()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.backgroundColor = .black
+        activityIndicator.backgroundColor = .bizBlack
         return activityIndicator
     }()
     

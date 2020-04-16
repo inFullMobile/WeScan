@@ -26,7 +26,7 @@ class ScannerHeaderView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Business Card"
-        label.textColor = UIColor(red: 92.0/255.0, green: 109.0/255.0, blue: 255.0/255.0, alpha: 1.0)
+        label.textColor = .primary
         label.font = UIFont.systemFont(ofSize: 40, weight: .semibold)
         label.minimumScaleFactor = 0.5
         label.adjustsFontSizeToFitWidth = true

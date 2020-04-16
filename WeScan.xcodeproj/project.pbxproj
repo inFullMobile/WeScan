@@ -12,6 +12,7 @@
 		0CD4DBE724470DE4009B2BD2 /* close@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0CD4DBE424470DE4009B2BD2 /* close@2x.png */; };
 		0CD4DBE824470DE4009B2BD2 /* close@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0CD4DBE524470DE4009B2BD2 /* close@3x.png */; };
 		0CD4DBED24472CEB009B2BD2 /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD4DBEC24472CEB009B2BD2 /* ActivityIndicatorView.swift */; };
+		0CD4DC212448A50D009B2BD2 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD4DC202448A50D009B2BD2 /* UIColor+Extensions.swift */; };
 		362967782294C23700B9FC4A /* CGImagePropertyOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362967772294C23700B9FC4A /* CGImagePropertyOrientation.swift */; };
 		74E27858215446C900361812 /* FBSnapshotTestCase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74E27850215446C200361812 /* FBSnapshotTestCase.framework */; };
 		74F7D034211ACBD90046AF7E /* CIRectangleDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F7D033211ACBD90046AF7E /* CIRectangleDetectorTests.swift */; };
@@ -194,6 +195,7 @@
 		0CD4DBE424470DE4009B2BD2 /* close@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "close@2x.png"; sourceTree = "<group>"; };
 		0CD4DBE524470DE4009B2BD2 /* close@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "close@3x.png"; sourceTree = "<group>"; };
 		0CD4DBEC24472CEB009B2BD2 /* ActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorView.swift; sourceTree = "<group>"; };
+		0CD4DC202448A50D009B2BD2 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		274DF35922D363BC0095CE49 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
 		362967772294C23700B9FC4A /* CGImagePropertyOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImagePropertyOrientation.swift; sourceTree = "<group>"; };
 		37DE11D92417FC8A0062E4E4 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -464,6 +466,7 @@
 				C3E2EB8D20B8970800A42E58 /* UIImage+Utils.swift */,
 				A1DF90F52037187500841A11 /* UIImage+Orientation.swift */,
 				362967772294C23700B9FC4A /* CGImagePropertyOrientation.swift */,
+				0CD4DC202448A50D009B2BD2 /* UIColor+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -891,6 +894,7 @@
 				A11C5B9C2046A20C005075FE /* Error.swift in Sources */,
 				B940E3DE21AE2A79003B3C0B /* CaptureSession+Focus.swift in Sources */,
 				B940E3DC21AE2A64003B3C0B /* CaptureSession+Flash.swift in Sources */,
+				0CD4DC212448A50D009B2BD2 /* UIColor+Extensions.swift in Sources */,
 				A1D4BD15202C6CC000FCDDEC /* Array+Utils.swift in Sources */,
 				C3E2EB8E20B8970800A42E58 /* UIImage+Utils.swift in Sources */,
 				A165F67E2044741B002D5ED6 /* ShutterButton.swift in Sources */,
