@@ -193,10 +193,22 @@ final class EditScanViewController: UIViewController {
     
     /// Generates a `Quadrilateral` object that's centered and one third of the size of the passed in image.
     private static func defaultQuad(forImage image: UIImage) -> Quadrilateral {
-        let topLeft = CGPoint(x: image.size.width / 3.0, y: image.size.height / 3.0)
-        let topRight = CGPoint(x: 2.0 * image.size.width / 3.0, y: image.size.height / 3.0)
-        let bottomRight = CGPoint(x: 2.0 * image.size.width / 3.0, y: 2.0 * image.size.height / 3.0)
-        let bottomLeft = CGPoint(x: image.size.width / 3.0, y: 2.0 * image.size.height / 3.0)
+//        let topLeft = CGPoint(x: image.size.width / 3.0, y: image.size.height / 3.0)
+//        let topRight = CGPoint(x: 2.0 * image.size.width / 3.0, y: image.size.height / 3.0)
+//        let bottomRight = CGPoint(x: 2.0 * image.size.width / 3.0, y: 2.0 * image.size.height / 3.0)
+//        let bottomLeft = CGPoint(x: image.size.width / 3.0, y: 2.0 * image.size.height / 3.0)
+        
+        let previewRectRatio: CGFloat = 537.0 / 388.0
+        let posX1: CGFloat = image.size.width / 31
+        let posX2: CGFloat = image.size.width - image.size.width / 31
+        let height: CGFloat = (image.size.width - 2 * (image.size.width / 31)) / previewRectRatio
+        let posY1: CGFloat = (image.size.height - height) / 2
+        let posY2: CGFloat  = posY1 + height
+        
+        let topLeft = CGPoint(x: posX1, y: posY1)
+        let topRight = CGPoint(x: posX2, y: posY1)
+        let bottomRight = CGPoint(x: posX2, y: posY2)
+        let bottomLeft = CGPoint(x: posX1, y: posY2)
         
         let quad = Quadrilateral(topLeft: topLeft, topRight: topRight, bottomRight: bottomRight, bottomLeft: bottomLeft)
         
