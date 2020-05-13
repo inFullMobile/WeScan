@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C66497D246BF4E300AC6F59 /* UIViewController+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C66497C246BF4E300AC6F59 /* UIViewController+Extensions.swift */; };
 		0CD4DBAD2446F7F2009B2BD2 /* ScannerHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD4DBAC2446F7F2009B2BD2 /* ScannerHeaderView.swift */; };
 		0CD4DBE624470DE4009B2BD2 /* close.png in Resources */ = {isa = PBXBuildFile; fileRef = 0CD4DBE324470DE4009B2BD2 /* close.png */; };
 		0CD4DBE724470DE4009B2BD2 /* close@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0CD4DBE424470DE4009B2BD2 /* close@2x.png */; };
@@ -190,6 +191,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0C66497C246BF4E300AC6F59 /* UIViewController+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extensions.swift"; sourceTree = "<group>"; };
 		0CD4DBAC2446F7F2009B2BD2 /* ScannerHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerHeaderView.swift; sourceTree = "<group>"; };
 		0CD4DBE324470DE4009B2BD2 /* close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close.png; sourceTree = "<group>"; };
 		0CD4DBE424470DE4009B2BD2 /* close@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "close@2x.png"; sourceTree = "<group>"; };
@@ -467,6 +469,7 @@
 				A1DF90F52037187500841A11 /* UIImage+Orientation.swift */,
 				362967772294C23700B9FC4A /* CGImagePropertyOrientation.swift */,
 				0CD4DC202448A50D009B2BD2 /* UIColor+Extensions.swift */,
+				0C66497C246BF4E300AC6F59 /* UIViewController+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -896,6 +899,7 @@
 				B940E3DC21AE2A64003B3C0B /* CaptureSession+Flash.swift in Sources */,
 				0CD4DC212448A50D009B2BD2 /* UIColor+Extensions.swift in Sources */,
 				A1D4BD15202C6CC000FCDDEC /* Array+Utils.swift in Sources */,
+				0C66497D246BF4E300AC6F59 /* UIViewController+Extensions.swift in Sources */,
 				C3E2EB8E20B8970800A42E58 /* UIImage+Utils.swift in Sources */,
 				A165F67E2044741B002D5ED6 /* ShutterButton.swift in Sources */,
 				B940E3AD21A829EE003B3C0B /* CaptureSession+Orientation.swift in Sources */,

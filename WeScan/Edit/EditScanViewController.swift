@@ -70,6 +70,7 @@ final class EditScanViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupBackButton()
         setupViews()
         setupConstraints()
         title = NSLocalizedString("wescan.edit.title", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Edit Scan", comment: "The title of the EditScanViewController")

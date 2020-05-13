@@ -64,6 +64,7 @@ final class ReviewViewController: UIViewController {
 
         enhancedImageIsAvailable = results.enhancedScan != nil
         
+        setupBackButton()
         setupViews()
         setupToolbar()
         setupConstraints()

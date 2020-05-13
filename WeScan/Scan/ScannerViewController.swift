@@ -133,6 +133,7 @@ final class ScannerViewController: UIViewController {
         
         title = nil
         
+        setupBackButton()
         setupViews()
         setupNavigationBar()
         setupConstraints()
